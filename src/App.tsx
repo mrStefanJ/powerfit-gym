@@ -43,14 +43,14 @@ function App() {
           </ProtectedRoute>
         }
       />
-      {/* <Route
+      <Route
         path="/user/:id"
         element={
           <ProtectedRoute>
             <User />
           </ProtectedRoute>
         }
-      /> */}
+      />
       <Route
         path="/admin"
         element={

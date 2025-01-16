@@ -1,83 +1,38 @@
 import { DragEndEvent } from "@dnd-kit/core";
-import React, {
-  ChangeEvent,
-  FormEvent,
-  useEffect,
-  useId,
-  useState
-} from "react";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+} from "firebase/firestore";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Footer from "../../componenets/Footer/Footer";
 import Header from "../../componenets/Header/Header";
+import Loading from "../../componenets/Loading/Loading";
 import UserTable from "../../componenets/Table/UserTable";
+import { db } from "../../configuration";
+import { listExercis } from "../../exercis/ExercisList";
 import AddExercises from "../../modal/AddExercises";
 import CreateUser from "../../modal/CreateUser";
 import DeleteUser from "../../modal/DeleteUser";
 import { Category, Exercise } from "../../types/Exercis";
 import { User } from "../../types/User";
 
-const listExercis: Category[] = [
-  {
-    id: 111,
-    exercises: {
-      id: 1,
-      title: "abs",
-      workout: [
-        { id: 101, title: "Crunch", status: "TODO" },
-        { id: 102, title: "V-sit", status: "TODO" },
-        { id: 103, title: "Cable crunch", status: "TODO" },
-      ],
-    },
-  },
-  {
-    id: 112,
-    exercises: {
-      id: 2,
-      title: "legs",
-      workout: [
-        { id: 201, title: "Split squats", status: "TODO" },
-        { id: 202, title: "Walking lunges", status: "TODO" },
-        { id: 203, title: "Squat", status: "TODO" },
-      ],
-    },
-  },
-  {
-    id: 113,
-    exercises: {
-      id: 3,
-      title: "lowerBack",
-      workout: [
-        { id: 301, title: "Knee to chest stretch", status: "TODO" },
-        { id: 302, title: "Superman", status: "TODO" },
-        { id: 303, title: "Plank", status: "TODO" },
-      ],
-    },
-  },
-  {
-    id: 114,
-    exercises: {
-      id: 4,
-      title: "shoulder",
-      workout: [
-        { id: 401, title: "Front raise", status: "TODO" },
-        { id: 402, title: "Y raise", status: "TODO" },
-        { id: 403, title: "Push press", status: "TODO" },
-      ],
-    },
-  },
-];
-
 const Users = () => {
+  const [users, setUsers] = useState<User[]>([]);
   const [exercis, setExercis] = useState(listExercis);
+  const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [openModalExercises, setOpenModalExercises] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [message, setMessage] = useState("");
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
-  const [userData, setUserData] = useState<User>({
-    id: useId(),
+  const [userData, setUserData] = useState({
+    id: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -91,13 +46,35 @@ const Users = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    setUsers(storedUsers);
+    fetchUsers();
   }, []);
 
-  const toggleModalUser = () => setOpenModal(!openModal);
-  const toggleModalExercis = () => setOpenModalExercises(!openModalExercises);
-  const toggleModalDelete = () => setOpenModalDelete(!openModalDelete);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getDocs(collection(db, "users"));
+      const userLists = data.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as User[];
+
+      setUsers(userLists);
+    } catch (error) {
+      console.error(
+        `There was an error fetching the data in firestore: ${error}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleModalAddUser = () => setOpenModal(!openModal);
+  const toggleModalAddExercis = () =>
+    setOpenModalExercises(!openModalExercises);
+  const toggleModalDeleteUser = (id: string | null = null) => {
+    setUserToDelete(id);
+    setOpenModalDelete(!openModalDelete);
+  };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCategory(e.target.value);
@@ -120,29 +97,48 @@ const Users = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  // Save user data to Firestore
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const updatedUsers = [...users, userData];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    setUsers(updatedUsers);
-    setOpenModal(false);
-    setUserData({
-      id: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      birthDate: "",
-      image: "",
-      gender: "",
-      group: "",
-    });
+
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        birthDate: userData.birthDate,
+        image: userData.image,
+        gender: userData.gender,
+        group: userData.group,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      const newUser = { ...userData, id: docRef.id };
+      setUsers((prevUsers) => [...prevUsers, newUser]);
+      setOpenModal(false);
+
+      setUserData({
+        id: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        birthDate: "",
+        image: "",
+        gender: "",
+        group: "",
+      });
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   const handleViewUser = (user: User) => {
-    localStorage.setItem("selectedUser", JSON.stringify(user));
-    navigate("/user", { state: { user } });
+    if (!user.id) {
+      console.error("User ID is missing");
+      return;
+    }
+    navigate(`/user/${user.id}`);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -178,13 +174,13 @@ const Users = () => {
     const formattedToday = newDate.toISOString().split("T")[0];
 
     const existingData = localStorage.getItem("exercises");
-
+    // Checking for user if he/she finished exercises for today
     if (existingData) {
       const parseData = JSON.parse(existingData);
 
       const saveData = parseData.date.split("T")[0];
       if (saveData === formattedToday) {
-        setMessage("You already finished for today, see you tomorrow")
+        setMessage("You already finished for today, see you tomorrow");
         return;
       }
     }
@@ -206,9 +202,19 @@ const Users = () => {
       date: newDate.toISOString(),
     };
 
-    console.log(saveExercis);
     localStorage.setItem("exercises", JSON.stringify(saveExercis));
-    toggleModalExercis();
+    toggleModalAddUser();
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      const deleteUser = doc(db, "users", id);
+      await deleteDoc(deleteUser);
+      setUsers((prev) => prev.filter((user) => user.id !== id));
+      setOpenModalDelete(false);
+    } catch (error) {
+      console.log("Error deleting user:", error);
+    }
   };
 
   return (
@@ -217,23 +223,28 @@ const Users = () => {
       <div className="flex flex-row justify-between items-center mx-2.5 pt-3.5">
         <p>List of Users</p>
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-          onClick={toggleModalUser}
+          className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-full"
+          onClick={toggleModalAddUser}
         >
           Add
         </button>
       </div>
-      <UserTable
-        users={users}
-        handleViewUser={handleViewUser}
-        toggleModalExercis={toggleModalExercis}
-        toggleModalDelete={toggleModalDelete}
-      />
+
+      {loading ? (
+        <Loading />
+      ) : (
+        <UserTable
+          users={users}
+          handleViewUser={handleViewUser}
+          toggleModalExercis={toggleModalAddExercis}
+          toggleModalDelete={(id: string) => toggleModalDeleteUser(id)}
+        />
+      )}
 
       {openModal && (
         <CreateUser
-          userData={setUserData}
-          toggleModalUser={toggleModalUser}
+          userData={userData}
+          toggleModalUser={toggleModalAddUser}
           handleInputChange={handleInputChange}
           handleImageChange={handleImageChange}
           handleSubmit={handleSubmit}
@@ -245,15 +256,18 @@ const Users = () => {
           exercis={exercis}
           handleDragEnd={handleDragEnd}
           message={message}
-          toggleModalExercis={toggleModalExercis}
+          toggleModalExercis={toggleModalAddExercis}
           saveExercises={handleSubmitExercises}
           selectedCategory={selectedCategory}
           handleCategoryChange={handleCategoryChange}
         />
       )}
-      {openModalDelete && (
-        <DeleteUser toggleModalDelete={toggleModalDelete} />
-        )}
+      {openModalDelete && userToDelete && (
+        <DeleteUser
+          toggleModalDelete={() => toggleModalDeleteUser(null)}
+          handleDeleteUser={() => handleDeleteUser(userToDelete)}
+        />
+      )}
       <Footer />
     </>
   );

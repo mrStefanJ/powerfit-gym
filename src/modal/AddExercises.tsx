@@ -1,7 +1,17 @@
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import Column from "../componenets/Column/Column";
 import { Category, Column as ColumnType, Exercise } from "../types/Exercis";
 import { useState } from "react";
+
+interface AddExerciesProps {
+  exercis: Category[];
+  handleDragEnd: (e: DragEndEvent) => void;
+  message: string;
+  toggleModalExercis: () => void;
+  saveExercises: () => void;
+  selectedCategory: string;
+  handleCategoryChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
 
 const COLUMNS: ColumnType[] = [
   { id: "TODO", title: "To Do" },
@@ -17,7 +27,7 @@ const AddExercises = ({
   saveExercises,
   selectedCategory,
   handleCategoryChange,
-}: any) => {
+}: AddExerciesProps) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const filteredExercises: Exercise[] = selectedCategory
@@ -81,11 +91,7 @@ const AddExercises = ({
           >
             {isSaved ? "Saved" : "Save"}
           </button>
-          {isSaved && (
-            <p className="message mt-4 text-green-600">
-              {message}
-            </p>
-          )}
+          {isSaved && <p className="message mt-4 text-green-600">{message}</p>}
         </div>
       </div>
     </div>

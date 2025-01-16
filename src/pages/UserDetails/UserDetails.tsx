@@ -1,21 +1,44 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import { Category, Exercise } from "../../types/Exercis";
+import { useNavigate, useParams } from "react-router";
+import { Exercise } from "../../types/Exercis";
+import { db } from "../../configuration";
+import { doc, getDoc } from "firebase/firestore";
+import { User } from "../../types/User";
 
 const UserDetails = () => {
+  const { id } = useParams();
+  const [user, setUser] = useState<User | null>(null);
   const [exercises, setExercises] = useState([]);
   const [date, setDate] = useState("");
-  const location = useLocation();
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const user = location.state?.user;
 
   useEffect(() => {
     fetchExercise();
-  }, []);
+    if (id) {
+      fetchUserDetails(id);
+    }
+  }, [id]);
+
+  const fetchUserDetails = async (userId: string) => {
+    try {
+      const userDocRef = doc(db, "users", userId);
+      const response = await getDoc(userDocRef);
+
+      if (response.exists()) {
+        const data = response.data();
+        setUser(data as User);
+      } else {
+        console.error("No user found with the given ID");
+      }
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+      setError("Failed to fetch user details");
+    }
+  };
 
   const fetchExercise = () => {
     const data = localStorage.getItem("exercises");
-
     if (data) {
       const parseData = JSON.parse(data);
       setExercises(parseData.exercis || []);
@@ -28,37 +51,40 @@ const UserDetails = () => {
     navigate(-1);
   };
 
-  if (!user) {
-    return <div>No User Selected</div>;
+  // Show error message or loading state if necessary
+  if (error) {
+    return <div>{error}</div>;
   }
 
-  console.log(exercises);
+  if (!user) {
+    return <div>Loading user details...</div>;
+  }
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">User Details</h2>
       <div className="border p-4 rounded shadow">
         <p>
-          <strong>First Name:</strong> {user.firstName}
+          <strong>First Name:</strong> {user?.firstName}
         </p>
         <p>
-          <strong>Last Name:</strong> {user.lastName}
+          <strong>Last Name:</strong> {user?.lastName}
         </p>
         <p>
-          <strong>Email:</strong> {user.email}
+          <strong>Email:</strong> {user?.email}
         </p>
         <p>
-          <strong>Birth Date:</strong> {user.birthDate}
+          <strong>Birth Date:</strong> {user?.birthDate}
         </p>
         <p>
-          <strong>Gender:</strong> {user.gender}
+          <strong>Gender:</strong> {user?.gender}
         </p>
         <p>
-          <strong>Group:</strong> {user.group}
+          <strong>Group:</strong> {user?.group}
         </p>
-        {user.image && (
+        {user?.image && (
           <img
-            src={user.image}
+            src={user?.image}
             alt="User"
             className="w-32 h-32 mt-4 rounded-full border"
           />

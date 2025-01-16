@@ -1,24 +1,20 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { User } from "./types/User";
-  
-  const AuthContext = createContext<{
-    user: User | null;
-    register: (newUser: User) => { success: boolean; message: string };
-    login: ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => { success: boolean; message: string };
-    logOut: () => void;
-  }>({
-    user: null,
-    register: () => ({ success: false, message: '' }),
-    login: () => ({ success: false, message: '' }),
-    logOut: () => {},
-  });
-  
+
+const AuthContext = createContext<{
+  user: User | null;
+  register: (newUser: User) => { success: boolean; message: string };
+  login: ({ email, password }: { email: string; password: string }) => {
+    success: boolean;
+    message: string;
+  };
+  logOut: () => void;
+}>({
+  user: null,
+  register: () => ({ success: false, message: "" }),
+  login: () => ({ success: false, message: "" }),
+  logOut: () => {},
+});
 
 const AuthProvider = ({ children }: { children: any }) => {
   const [user, setUser] = useState(null);
@@ -30,7 +26,7 @@ const AuthProvider = ({ children }: { children: any }) => {
       setUser(JSON.parse(storedUser));
     }
   }, []);
-
+  // Register a new user
   const register = (newUser: any) => {
     const registeredUsers = JSON.parse(
       localStorage.getItem("gymRegisteredUsers") || "[]"
@@ -47,7 +43,7 @@ const AuthProvider = ({ children }: { children: any }) => {
     localStorage.setItem("gymRegisteredUsers", JSON.stringify(registeredUsers));
     return { success: true, message: "User registered successfully" };
   };
-
+  // Login user
   const login = ({ email, password }: { email: string; password: string }) => {
     const registeredUsers = JSON.parse(
       localStorage.getItem("gymRegisteredUsers") || "[]"
@@ -64,7 +60,7 @@ const AuthProvider = ({ children }: { children: any }) => {
 
     return { success: false, message: "Invalid email or password" };
   };
-
+  // Logout
   const logOut = () => {
     setUser(null);
     localStorage.removeItem("currentUser");

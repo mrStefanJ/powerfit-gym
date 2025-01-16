@@ -1,13 +1,14 @@
 interface DeleteProps {
   toggleModalDelete: () => void;
+  handleDeleteUser: () => void;
 }
 
-const DeleteUser = ({ toggleModalDelete }: DeleteProps) => {
+const DeleteUser = ({ toggleModalDelete, handleDeleteUser }: DeleteProps) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-5 rounded-lg w-11/12">
         <h1 className="text-center text-xl">
-          Are you sure, you want to delete User 'Name'
+          Are you sure, you want to delete User?
         </h1>
         <div className="button">
           <button
@@ -17,7 +18,13 @@ const DeleteUser = ({ toggleModalDelete }: DeleteProps) => {
           >
             Close
           </button>
-          <button>Delete</button>
+          <button
+            type="button"
+            className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+            onClick={handleDeleteUser}
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>

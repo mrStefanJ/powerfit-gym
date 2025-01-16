@@ -5,7 +5,7 @@ interface UserTableProps {
   users: User[];
   handleViewUser: (user: User) => void;
   toggleModalExercis: () => void;
-  toggleModalDelete: () => void;
+  toggleModalDelete: (userId: string) => void;
 }
 
 const UserTable = ({
@@ -53,7 +53,7 @@ const UserTable = ({
                 <button onClick={() => toggleMenu(user.id)} className="text-xl">
                   ⋮
                 </button>
-                {openMenuId && (
+                {openMenuId === user.id && (
                   <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg">
                     <button
                       onClick={() => handleViewUser(user)}
@@ -61,23 +61,17 @@ const UserTable = ({
                     >
                       View
                     </button>
-                    <p className="px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                    <button className="px-4 py-2 hover:bg-gray-200 cursor-pointer">
                       Edit
-                    </p>
+                    </button>
                     <button
-                      onClick={() => {
-                        toggleModalExercis();
-                        setOpenMenuId(null);
-                      }}
+                      onClick={toggleModalExercis}
                       className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
                     >
                       Add Exercise
                     </button>
                     <button
-                      onClick={() => {
-                        toggleModalDelete();
-                        setOpenMenuId(null);
-                      }}
+                      onClick={() => toggleModalDelete(user.id)}
                       className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
                     >
                       Delete
@@ -85,13 +79,15 @@ const UserTable = ({
                   </div>
                 )}
               </td>
-              {users.length === 0 && (
-                <td colSpan={7} className="text-center">
-                  No DATA
-                </td>
-              )}
             </tr>
           ))}
+          <tr>
+            {users.length === 0 && (
+              <td colSpan={7} className="text-center">
+                No DATA
+              </td>
+            )}
+          </tr>
         </tbody>
       </table>
     </div>

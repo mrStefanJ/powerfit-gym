@@ -1,10 +1,22 @@
+import { User } from "../types/User";
+
+interface CreateUserProps {
+  userData: User;
+  toggleModalUser: () => void;
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
 const CreateUser = ({
-  formData,
+  userData,
   toggleModalUser,
   handleInputChange,
   handleImageChange,
   handleSubmit,
-}: any) => {
+}: CreateUserProps) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-5 rounded-lg w-96">
@@ -15,7 +27,7 @@ const CreateUser = ({
             <input
               type="text"
               name="firstName"
-              value={formData?.firstName}
+              value={userData.firstName}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -26,7 +38,7 @@ const CreateUser = ({
             <input
               type="text"
               name="lastName"
-              value={formData?.lastName}
+              value={userData.lastName}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -37,7 +49,7 @@ const CreateUser = ({
             <input
               type="email"
               name="email"
-              value={formData?.email}
+              value={userData.email}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -48,7 +60,7 @@ const CreateUser = ({
             <input
               type="password"
               name="password"
-              value={formData?.password}
+              value={userData.password}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -59,7 +71,7 @@ const CreateUser = ({
             <input
               type="date"
               name="birthDate"
-              value={formData?.birthDate}
+              value={userData.birthDate}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -78,7 +90,7 @@ const CreateUser = ({
             <label>Gender</label>
             <select
               name="gender"
-              value={formData?.gender}
+              value={userData.gender}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -92,7 +104,7 @@ const CreateUser = ({
             <label>Group</label>
             <select
               name="group"
-              value={formData?.group}
+              value={userData.group}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
