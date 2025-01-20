@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { User } from "../../types/User";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPlus, faTrash, faUserPen } from "@fortawesome/free-solid-svg-icons";
 
 interface UserTableProps {
   users: User[];
   handleViewUser: (user: User) => void;
   toggleModalExercis: () => void;
+  toggleModalEdit: (id: string) => void;
   toggleModalDelete: (userId: string) => void;
 }
 
@@ -12,6 +15,7 @@ const UserTable = ({
   users,
   handleViewUser,
   toggleModalExercis,
+  toggleModalEdit,
   toggleModalDelete,
 }: UserTableProps) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -54,27 +58,39 @@ const UserTable = ({
                   ⋮
                 </button>
                 {openMenuId === user.id && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg">
+                  <div className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg flex flex-col">
                     <button
                       onClick={() => handleViewUser(user)}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
                     >
-                      View
-                    </button>
-                    <button className="px-4 py-2 hover:bg-gray-200 cursor-pointer">
-                      Edit
+                      View <FontAwesomeIcon icon={faEye} />
                     </button>
                     <button
-                      onClick={toggleModalExercis}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => {
+                        toggleModalEdit(user.id);
+                        setOpenMenuId(null);
+                      }}
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
                     >
-                      Add Exercise
+                      Edit User <FontAwesomeIcon icon={faUserPen} />
                     </button>
                     <button
-                      onClick={() => toggleModalDelete(user.id)}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => {
+                        toggleModalExercis();
+                        setOpenMenuId(null);
+                      }}
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
                     >
-                      Delete
+                      Add Exercise <FontAwesomeIcon icon={faPlus} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        toggleModalDelete(user.id);
+                        setOpenMenuId(null);
+                      }}
+                      className="px-4 py-2 hover:bg-gray-200 hover:text-red-500 cursor-pointer flex flex-row justify-between items-center"
+                    >
+                      Delete <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </div>
                 )}

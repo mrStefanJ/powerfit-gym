@@ -5,6 +5,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  updateDoc,
 } from "firebase/firestore";
 import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -19,17 +20,19 @@ import CreateUser from "../../modal/CreateUser";
 import DeleteUser from "../../modal/DeleteUser";
 import { Category, Exercise } from "../../types/Exercis";
 import { User } from "../../types/User";
+import EditUser from "../../modal/EditUser";
 
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [exercis, setExercis] = useState(listExercis);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalExercises, setOpenModalExercises] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [message, setMessage] = useState("");
-  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   const [userData, setUserData] = useState({
     id: "",
@@ -69,10 +72,39 @@ const Users = () => {
   };
 
   const toggleModalAddUser = () => setOpenModal(!openModal);
+  const toggleModalEditUser = (id: string | null = null) => {
+    const defaultUser: User = {
+      id: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      birthDate: "",
+      image: "",
+      gender: "",
+      group: "",
+    };
+
+    const userToEdit = users.find((user) => user.id === id) || defaultUser;
+    // Provide default values for optional fields
+    setUserData({
+      id: userToEdit.id || "",
+      firstName: userToEdit.firstName || "",
+      lastName: userToEdit.lastName || "",
+      email: userToEdit.email || "",
+      password: userToEdit.password || "",
+      birthDate: userToEdit.birthDate || "",
+      image: userToEdit.image || "",
+      gender: userToEdit.gender || "",
+      group: userToEdit.group || "",
+    });
+    setOpenModalEdit(!openModalEdit);
+  };
+
   const toggleModalAddExercis = () =>
     setOpenModalExercises(!openModalExercises);
   const toggleModalDeleteUser = (id: string | null = null) => {
-    setUserToDelete(id);
+    setSelectedUser(id);
     setOpenModalDelete(!openModalDelete);
   };
 
@@ -100,7 +132,7 @@ const Users = () => {
   // Save user data to Firestore
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const docRef = await addDoc(collection(db, "users"), {
         firstName: userData.firstName,
@@ -128,8 +160,42 @@ const Users = () => {
         gender: "",
         group: "",
       });
+
+      setLoading(false);
     } catch (error) {
       console.error("Error adding document: ", error);
+    }
+  };
+
+  // Update User
+  const handleEditUser = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Editing user");
+    setLoading(true);
+    try {
+      if (!userData.id) return;
+
+      const userRef = doc(db, "users", userData.id);
+      await updateDoc(userRef, {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        birthDate: userData.birthDate,
+        gender: userData.gender,
+        group: userData.group,
+      });
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === userData.id ? { ...user, ...userData } : user
+        )
+      );
+
+      setOpenModalEdit(false);
+      setLoading(false);
+    } catch (error) {
+      console.log("Error updateing user: ", error);
     }
   };
 
@@ -203,15 +269,17 @@ const Users = () => {
     };
 
     localStorage.setItem("exercises", JSON.stringify(saveExercis));
-    toggleModalAddUser();
+    setOpenModalExercises(false);
   };
-
+  // Delete user
   const handleDeleteUser = async (id: string) => {
-    try {
+    setLoading(true);
+    try { 
       const deleteUser = doc(db, "users", id);
       await deleteDoc(deleteUser);
       setUsers((prev) => prev.filter((user) => user.id !== id));
       setOpenModalDelete(false);
+      setLoading(false);
     } catch (error) {
       console.log("Error deleting user:", error);
     }
@@ -231,12 +299,13 @@ const Users = () => {
       </div>
 
       {loading ? (
-        <Loading />
+        <Loading color='fill-blue-600'/>
       ) : (
         <UserTable
           users={users}
           handleViewUser={handleViewUser}
           toggleModalExercis={toggleModalAddExercis}
+          toggleModalEdit={(id: string) => toggleModalEditUser(id)}
           toggleModalDelete={(id: string) => toggleModalDeleteUser(id)}
         />
       )}
@@ -247,7 +316,19 @@ const Users = () => {
           toggleModalUser={toggleModalAddUser}
           handleInputChange={handleInputChange}
           handleImageChange={handleImageChange}
+          loading={loading}
           handleSubmit={handleSubmit}
+        />
+      )}
+
+      {openModalEdit && (
+        <EditUser
+          userData={userData}
+          toggleModalUser={toggleModalEditUser}
+          handleInputChange={handleInputChange}
+          handleImageChange={handleImageChange}
+          loading={loading}
+          handleSubmit={handleEditUser}
         />
       )}
 
@@ -262,10 +343,11 @@ const Users = () => {
           handleCategoryChange={handleCategoryChange}
         />
       )}
-      {openModalDelete && userToDelete && (
+      {openModalDelete && selectedUser && (
         <DeleteUser
           toggleModalDelete={() => toggleModalDeleteUser(null)}
-          handleDeleteUser={() => handleDeleteUser(userToDelete)}
+          loading={loading}
+          handleDelete={() => handleDeleteUser(selectedUser)}
         />
       )}
       <Footer />

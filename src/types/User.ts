@@ -1,11 +1,11 @@
-export interface User {
+export type User = {
   id: string;
   firstName?: string;
   lastName?: string;
   email: string;
   password: string;
   birthDate?: string;
-  gender?: string;
   image?: string;
+  gender?: string;
   group?: string;
-}
+};

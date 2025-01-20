@@ -1,36 +1,46 @@
-import Loading from "../componenets/Loading/Loading";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { User } from "../types/User";
+import Loading from "../componenets/Loading/Loading";
 
-interface CreateUserProps {
+interface EditUserProps {
   userData: User;
   toggleModalUser: () => void;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   loading: boolean;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
 }
 
-const CreateUser = ({
+const EditUser = ({
   userData,
   toggleModalUser,
   handleInputChange,
   handleImageChange,
   loading,
   handleSubmit,
-}: CreateUserProps) => {
+}: EditUserProps) => {
+
+  const [showPassword, setShowPaassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPaassword((prev) => !prev);
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-5 rounded-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">Add User</h2>
+        <h2 className="text-2xl font-bold mb-4">Edit User</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-2">
             <label>First Name</label>
             <input
               type="text"
               name="firstName"
-              value={userData.firstName}
+              value={userData.firstName || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -41,7 +51,7 @@ const CreateUser = ({
             <input
               type="text"
               name="lastName"
-              value={userData.lastName}
+              value={userData.lastName || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -52,29 +62,40 @@ const CreateUser = ({
             <input
               type="email"
               name="email"
-              value={userData.email}
+              value={userData.email || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
             />
           </div>
-          <div className="mb-2">
+          <div className="relative mb-2">
             <label>Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
-              value={userData.password}
+              value={userData.password || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-2 top-8 text-gray-500 focus:outline-none"
+            >
+              {showPassword ? (
+                <FontAwesomeIcon icon={faEyeSlash} />
+              ) : (
+                <FontAwesomeIcon icon={faEye} />
+              )}
+            </button>
           </div>
           <div className="mb-2">
             <label>Birth Date</label>
             <input
               type="date"
               name="birthDate"
-              value={userData.birthDate}
+              value={userData.birthDate || ""}
               onChange={handleInputChange}
               max={new Date().toISOString().split("T")[0]}
               className="w-full border p-2 rounded"
@@ -94,7 +115,7 @@ const CreateUser = ({
             <label>Gender</label>
             <select
               name="gender"
-              value={userData.gender}
+              value={userData.gender || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -108,7 +129,7 @@ const CreateUser = ({
             <label>Group</label>
             <select
               name="group"
-              value={userData.group}
+              value={userData.group || ""}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -134,7 +155,7 @@ const CreateUser = ({
               type="submit"
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
-              {loading ? <Loading color="fill-white" /> : "Save"}
+              {loading ? <Loading color="fill-white" /> : "Edit"}
             </button>
           </div>
         </form>
@@ -143,4 +164,4 @@ const CreateUser = ({
   );
 };
 
-export default CreateUser;
+export default EditUser;
