@@ -1,46 +1,46 @@
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { useState } from "react";
 import { User } from "../types/User";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Loading from "../componenets/Loading/Loading";
 
-interface EditUserProps {
+interface CreateUserProps {
+  title: string;
   userData: User;
   toggleModalUser: () => void;
   handleInputChange: (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   loading: boolean;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const EditUser = ({
+const ModalUser = ({
+  title,
   userData,
   toggleModalUser,
   handleInputChange,
   handleImageChange,
   loading,
   handleSubmit,
-}: EditUserProps) => {
-
+}: CreateUserProps) => {
   const [showPassword, setShowPaassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPaassword((prev) => !prev);
   };
-
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-5 rounded-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">Edit User</h2>
+        <h2 className="text-2xl font-bold mb-4">{title}</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-2">
             <label>First Name</label>
             <input
               type="text"
               name="firstName"
-              value={userData.firstName || ""}
+              value={userData.firstName}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -51,7 +51,7 @@ const EditUser = ({
             <input
               type="text"
               name="lastName"
-              value={userData.lastName || ""}
+              value={userData.lastName}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -62,18 +62,18 @@ const EditUser = ({
             <input
               type="email"
               name="email"
-              value={userData.email || ""}
+              value={userData.email}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
             />
           </div>
-          <div className="relative mb-2">
+          <div className="mb-2 relative">
             <label>Password</label>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              value={userData.password || ""}
+              value={userData.password}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -95,7 +95,7 @@ const EditUser = ({
             <input
               type="date"
               name="birthDate"
-              value={userData.birthDate || ""}
+              value={userData.birthDate}
               onChange={handleInputChange}
               max={new Date().toISOString().split("T")[0]}
               className="w-full border p-2 rounded"
@@ -115,7 +115,7 @@ const EditUser = ({
             <label>Gender</label>
             <select
               name="gender"
-              value={userData.gender || ""}
+              value={userData.gender}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -129,7 +129,7 @@ const EditUser = ({
             <label>Group</label>
             <select
               name="group"
-              value={userData.group || ""}
+              value={userData.group}
               onChange={handleInputChange}
               className="w-full border p-2 rounded"
               required
@@ -155,7 +155,7 @@ const EditUser = ({
               type="submit"
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
-              {loading ? <Loading color="fill-white" /> : "Edit"}
+              {loading ? <Loading color="fill-white" /> : "Save"}
             </button>
           </div>
         </form>
@@ -164,4 +164,4 @@ const EditUser = ({
   );
 };
 
-export default EditUser;
+export default ModalUser;

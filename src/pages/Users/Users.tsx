@@ -4,6 +4,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   updateDoc,
 } from "firebase/firestore";
@@ -15,12 +16,11 @@ import Loading from "../../componenets/Loading/Loading";
 import UserTable from "../../componenets/Table/UserTable";
 import { db } from "../../configuration";
 import { listExercis } from "../../exercis/ExercisList";
-import AddExercises from "../../modal/AddExercises";
-import CreateUser from "../../modal/CreateUser";
 import DeleteUser from "../../modal/DeleteUser";
-import { Category, Exercise } from "../../types/Exercis";
 import { User } from "../../types/User";
-import EditUser from "../../modal/EditUser";
+import { Workout } from "../../types/Exercis";
+import ModalUser from "../../modal/ModalUser";
+import AddExercises from "../../modal/AddExercises";
 
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -101,8 +101,10 @@ const Users = () => {
     setOpenModalEdit(!openModalEdit);
   };
 
-  const toggleModalAddExercis = () =>
+  const toggleModalAddExercis = (id: string | null = null) => {
+    setSelectedUser(id);
     setOpenModalExercises(!openModalExercises);
+  };
   const toggleModalDeleteUser = (id: string | null = null) => {
     setSelectedUser(id);
     setOpenModalDelete(!openModalDelete);
@@ -213,7 +215,7 @@ const Users = () => {
     if (!over) return;
 
     const draggedItemId = active.id as string;
-    const targetStatus = over.id as Exercise["status"];
+    const targetStatus = over.id as Workout["status"];
 
     setExercis((prevExercis) =>
       prevExercis.map((category) => {
@@ -235,27 +237,24 @@ const Users = () => {
     );
   };
 
-  const handleSubmitExercises = () => {
+  const handleSubmitExercises = async () => {
+    if (!selectedUser) {
+      setMessage("No user selected for adding exercises.");
+      return;
+    }
+
+    if (!selectedCategory) {
+      setMessage("No exercise category selected.");
+      return;
+    }
+
     const newDate = new Date();
     const formattedToday = newDate.toISOString().split("T")[0];
 
-    const existingData = localStorage.getItem("exercises");
-    // Checking for user if he/she finished exercises for today
-    if (existingData) {
-      const parseData = JSON.parse(existingData);
-
-      const saveData = parseData.date.split("T")[0];
-      if (saveData === formattedToday) {
-        setMessage("You already finished for today, see you tomorrow");
-        return;
-      }
-    }
-
+    // Filter exercises by selected category and non-TODO status
     const exerciseToSave = exercis
-      .filter(
-        (category: Category) => category.exercises.title === selectedCategory
-      )
-      .map((category: Category) => ({
+      .filter((category) => category.exercises.title === selectedCategory)
+      .map((category) => ({
         id: category.exercises.id,
         title: category.exercises.title,
         workout: category.exercises.workout.filter(
@@ -263,18 +262,69 @@ const Users = () => {
         ),
       }));
 
-    const saveExercis = {
-      exercis: exerciseToSave,
-      date: newDate.toISOString(),
-    };
+    if (exerciseToSave.length === 0 || !exerciseToSave[0].workout.length) {
+      setMessage("No exercises to save in the selected category.");
+      return;
+    }
 
-    localStorage.setItem("exercises", JSON.stringify(saveExercis));
-    setOpenModalExercises(false);
+    try {
+      // Reference to the user's document
+      const userRef = doc(db, "users", selectedUser);
+
+      // Fetch the current user's data
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        setMessage("User does not exist in the database.");
+        return;
+      }
+
+      const currentData = userDoc.data();
+
+      // Get the current exercise array from Firestore
+      const currentExercises = currentData?.exercis || [];
+
+      // Update the workouts to add only unique ones
+      const updatedWorkouts = exerciseToSave[0].workout.filter(
+        (newExercise) =>
+          !currentExercises.some((existingExercise: any) =>
+            existingExercise.workout.some(
+              (workout: any) => workout.id === newExercise.id
+            )
+          )
+      );
+
+      // If no new exercises, exit early
+      if (updatedWorkouts.length === 0) {
+        setMessage("No new exercises to add.");
+        return;
+      }
+
+      // Create the updated array with the new exercises
+      const updatedExercises = [
+        ...currentExercises,
+        {
+          ...exerciseToSave[0],
+          workout: updatedWorkouts,
+          date: formattedToday,
+        },
+      ];
+
+      // Update Firestore with the new exercises
+      await updateDoc(userRef, { exercise: updatedExercises });
+
+      setMessage("Exercises submitted successfully!");
+      setOpenModalExercises(false);
+    } catch (error) {
+      console.error("Error saving exercises:", error);
+      setMessage("An error occurred while saving exercises.");
+    }
   };
+
   // Delete user
   const handleDeleteUser = async (id: string) => {
     setLoading(true);
-    try { 
+    try {
       const deleteUser = doc(db, "users", id);
       await deleteDoc(deleteUser);
       setUsers((prev) => prev.filter((user) => user.id !== id));
@@ -299,19 +349,20 @@ const Users = () => {
       </div>
 
       {loading ? (
-        <Loading color='fill-blue-600'/>
+        <Loading color="fill-blue-600" />
       ) : (
         <UserTable
           users={users}
           handleViewUser={handleViewUser}
-          toggleModalExercis={toggleModalAddExercis}
+          toggleModalExercis={(id: string) => toggleModalAddExercis(id)}
           toggleModalEdit={(id: string) => toggleModalEditUser(id)}
           toggleModalDelete={(id: string) => toggleModalDeleteUser(id)}
         />
       )}
 
       {openModal && (
-        <CreateUser
+        <ModalUser
+          title="Add User"
           userData={userData}
           toggleModalUser={toggleModalAddUser}
           handleInputChange={handleInputChange}
@@ -322,7 +373,8 @@ const Users = () => {
       )}
 
       {openModalEdit && (
-        <EditUser
+        <ModalUser
+          title="Edit User"
           userData={userData}
           toggleModalUser={toggleModalEditUser}
           handleInputChange={handleInputChange}
@@ -335,6 +387,7 @@ const Users = () => {
       {openModalExercises && (
         <AddExercises
           exercis={exercis}
+          setExercis={setExercis}
           handleDragEnd={handleDragEnd}
           message={message}
           toggleModalExercis={toggleModalAddExercis}

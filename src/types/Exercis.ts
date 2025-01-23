@@ -5,13 +5,14 @@ export type Category = {
   exercises: {
     id: number;
     title: string;
-    workout: Exercise[];
+    workout: Workout[];
   };
 };
 
-export type Exercise = {
+export type Workout = {
   id: number;
   status: ExercisStatus;
+  sets: number;
   title: string;
 };
 
