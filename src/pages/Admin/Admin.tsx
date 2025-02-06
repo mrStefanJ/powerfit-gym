@@ -76,7 +76,7 @@ const Admin = () => {
         // Body part doesn't exist, create a new document
         await addDoc(workoutRef, {
           bodyPart: selectedBodyPart,
-          exercises: [{ name: exerciseName, status: "TODO" }],
+          exercises: [{ id: crypto.randomUUID() ,name: exerciseName, status: "TODO" }],
           createdAt: new Date(),
         });
       }
@@ -112,8 +112,6 @@ const Admin = () => {
       setIsLoading(false);
     }
   };
-
-  console.log(exercises);
 
   return (
     <>

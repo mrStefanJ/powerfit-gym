@@ -70,7 +70,9 @@ const DoughnutChart = () => {
   return (
     <div className="relative w-[300px] m-auto">
       {isLoading ? (
+        <div className="flex m-auto pt-40 pl-32">
         <Loading color="fill-blue-600" />
+        </div>
       ) : (
         <>
           <Doughnut data={data} options={options} />
