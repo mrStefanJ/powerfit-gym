@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Exercise } from "../../types/Exercis";
+
 import { db } from "../../configuration";
 import { doc, getDoc } from "firebase/firestore";
-import { User } from "../../types/User";
+import { UserExercise, User } from "../../types/User";
+import { Workout } from "../../types/Exercis";
 
 const UserDetails = () => {
   const { id } = useParams();
   const [user, setUser] = useState<User | null>(null);
   const [exercises, setExercises] = useState([]);
-  const [date, setDate] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchExercise();
+    
     if (id) {
       fetchUserDetails(id);
     }
@@ -28,21 +28,13 @@ const UserDetails = () => {
       if (response.exists()) {
         const data = response.data();
         setUser(data as User);
+        setExercises(data.exercise)
       } else {
         console.error("No user found with the given ID");
       }
     } catch (err) {
       console.error("Error fetching user details:", err);
       setError("Failed to fetch user details");
-    }
-  };
-
-  const fetchExercise = () => {
-    const data = localStorage.getItem("exercises");
-    if (data) {
-      const parseData = JSON.parse(data);
-      setExercises(parseData.exercis || []);
-      setDate(parseData.date);
     }
   };
 
@@ -61,10 +53,18 @@ const UserDetails = () => {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">User Details</h2>
-      <div className="border p-4 rounded shadow">
-        <p>
+    <section className="p-6">
+      <div className="flex justify-between mt-4 mb-4">
+      <h1 className="text-2xl font-bold mb-4">User Details</h1>
+        <button
+          onClick={handleGoBack}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Go Back
+        </button>
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between border p-4 rounded shadow">
+        <div><p>
           <strong>First Name:</strong> {user?.firstName}
         </p>
         <p>
@@ -81,36 +81,34 @@ const UserDetails = () => {
         </p>
         <p>
           <strong>Group:</strong> {user?.group}
-        </p>
+        </p></div>
+        <div>
         {user?.image && (
           <img
             src={user?.image}
             alt="User"
-            className="w-32 h-32 mt-4 rounded-full border"
+            className="w-32 h-32 m-4 border"
           />
         )}
+        </div>
       </div>
-
       <div className="table-exercises">
         <h3 className="text-xl font-semibold mb-2">Exercises</h3>
-        <div>
-          <h3>Date: {date}</h3>
-        </div>
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border p-2">ID</th>
               <th className="border p-2">Title</th>
+              <th className="border p-2">Sets</th>
               <th className="border p-2">Status</th>
             </tr>
           </thead>
           <tbody>
-            {exercises.length > 0 ? (
-              exercises.map((e: any) =>
-                e.workout.map((w: Exercise) => (
+            {exercises ? (
+              exercises.map((e: UserExercise) =>
+                e.workout.map((w: Workout) => (
                   <tr key={w.id}>
-                    <td className="border p-2">{w.id}</td>
                     <td className="border p-2">{w.title}</td>
+                    <td className="border p-2">{w.sets}</td>
                     <td className="border p-2">{w.status}</td>
                   </tr>
                 ))
@@ -125,15 +123,7 @@ const UserDetails = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex justify-between">
-        <button
-          onClick={handleGoBack}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Go Back
-        </button>
-      </div>
-    </div>
+    </section>
   );
 };
 

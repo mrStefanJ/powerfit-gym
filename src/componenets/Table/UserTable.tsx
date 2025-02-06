@@ -6,7 +6,7 @@ import { faEye, faPlus, faTrash, faUserPen } from "@fortawesome/free-solid-svg-i
 interface UserTableProps {
   users: User[];
   handleViewUser: (user: User) => void;
-  toggleModalExercis: () => void;
+  toggleModalExercis: (id: string) => void;
   toggleModalEdit: (id: string) => void;
   toggleModalDelete: (userId: string) => void;
 }
@@ -25,7 +25,7 @@ const UserTable = ({
   };
 
   return (
-    <div className="overflow-x-auto mt-4 px-2">
+    <div className="overflow-x-auto mt-8 mb-80 px-2">
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
@@ -54,7 +54,7 @@ const UserTable = ({
               <td className="py-2 px-4 border-b text-center">{user.gender}</td>
               <td className="py-2 px-4 border-b text-center">{user.group}</td>
               <td className="py-2 px-4 border-b text-center">
-                <button onClick={() => toggleMenu(user.id)} className="text-xl">
+                <button onClick={() => toggleMenu(user.id)} className="text-xl hover:bg-gray-200 w-[26px] h-[28px]">
                   ⋮
                 </button>
                 {openMenuId === user.id && (
@@ -76,7 +76,7 @@ const UserTable = ({
                     </button>
                     <button
                       onClick={() => {
-                        toggleModalExercis();
+                        toggleModalExercis(user.id);
                         setOpenMenuId(null);
                       }}
                       className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
