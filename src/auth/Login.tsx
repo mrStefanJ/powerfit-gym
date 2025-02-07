@@ -51,7 +51,7 @@ const Login = () => {
             type="email"
             name="email"
             placeholder="Enter your email"
-            className="shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.email}
             onChange={handleChange}
             required
@@ -61,7 +61,7 @@ const Login = () => {
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
-              className="shadow-lg shadow-yellow-700 rounded-full w-full border p-2 focus:border-yellow-700 focus:outline-yellow-700"
+              className="shadow-lg shadow-yellow-700 rounded w-full border p-2 focus:border-yellow-700 focus:outline-yellow-700"
               value={formData.password}
               onChange={handleChange}
               required
@@ -87,7 +87,7 @@ const Login = () => {
         </p>
         <button
           type="submit"
-          className="bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
+          className="bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
         >
           Login
         </button>

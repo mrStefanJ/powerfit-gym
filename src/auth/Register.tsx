@@ -59,7 +59,7 @@ const Register = () => {
             type="text"
             name="firstName"
             placeholder="Enter your first name"
-            className="shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.firstName}
             onChange={handleChange}
             required
@@ -68,7 +68,7 @@ const Register = () => {
             type="text"
             name="lastName"
             placeholder="Enter your last name"
-            className="shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.lastName}
             onChange={handleChange}
             required
@@ -77,7 +77,7 @@ const Register = () => {
             type="email"
             name="email"
             placeholder="Enter your email"
-            className="shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.email}
             onChange={handleChange}
             required
@@ -87,7 +87,7 @@ const Register = () => {
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
-              className="shadow-lg shadow-yellow-700 rounded-full w-full border p-2 focus:border-yellow-700 focus:outline-yellow-700"
+              className="shadow-lg shadow-yellow-700 rounded w-full border p-2 focus:border-yellow-700 focus:outline-yellow-700"
               value={formData.password}
               onChange={handleChange}
               required
@@ -108,14 +108,14 @@ const Register = () => {
             type="date"
             name="birthDate"
             placeholder="Enter your birthday"
-            className="cursor-pointer shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="cursor-pointer shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.birthDate}
             onChange={handleChange}
             required
           />
           <select
             name="gender"
-            className="cursor-pointer shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
+            className="cursor-pointer shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.gender}
             onChange={handleChange}
             required
@@ -139,13 +139,14 @@ const Register = () => {
           <input
             type="file"
             accept="image/*"
+            id="file-upload"
             className="hidden"
             onChange={handleImageChange}
             required
           />
           <label
             htmlFor="file-upload"
-            className="cursor-pointer bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
+            className="cursor-pointer bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
           >
             Upload Image
           </label>
@@ -158,7 +159,7 @@ const Register = () => {
         </p>
         <button
           type="submit"
-          className="bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
+          className="bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
         >
           Register
         </button>
