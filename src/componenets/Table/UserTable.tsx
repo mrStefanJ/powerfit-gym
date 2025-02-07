@@ -54,14 +54,14 @@ const UserTable = ({
               <td className="py-2 px-4 border-b text-center">{user.gender}</td>
               <td className="py-2 px-4 border-b text-center">{user.group}</td>
               <td className="py-2 px-4 border-b text-center">
-                <button onClick={() => toggleMenu(user.id)} className="text-xl hover:bg-gray-200 w-[26px] h-[28px]">
+                <button onClick={() => toggleMenu(user.id)} className="text-xl hover:bg-yellow-700 hover:text-white w-[26px] h-[28px]">
                   ⋮
                 </button>
                 {openMenuId === user.id && (
                   <div className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg flex flex-col">
                     <button
                       onClick={() => handleViewUser(user)}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
+                      className="px-4 py-2 text-yellow-700 hover:bg-yellow-700 hover:text-white cursor-pointer flex flex-row justify-between items-center"
                     >
                       View <FontAwesomeIcon icon={faEye} />
                     </button>
@@ -70,7 +70,7 @@ const UserTable = ({
                         toggleModalEdit(user.id);
                         setOpenMenuId(null);
                       }}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
+                      className="px-4 py-2 text-yellow-700 hover:bg-yellow-700 hover:text-white cursor-pointer flex flex-row justify-between items-center"
                     >
                       Edit User <FontAwesomeIcon icon={faUserPen} />
                     </button>
@@ -79,7 +79,7 @@ const UserTable = ({
                         toggleModalExercis(user.id);
                         setOpenMenuId(null);
                       }}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center"
+                      className="px-4 py-2 text-yellow-700 hover:bg-yellow-700 hover:text-white cursor-pointer flex flex-row justify-between items-center"
                     >
                       Add Exercise <FontAwesomeIcon icon={faPlus} />
                     </button>
@@ -88,7 +88,7 @@ const UserTable = ({
                         toggleModalDelete(user.id);
                         setOpenMenuId(null);
                       }}
-                      className="px-4 py-2 hover:bg-gray-200 hover:text-red-500 cursor-pointer flex flex-row justify-between items-center"
+                      className="text-red-500 px-4 py-2 text-base rounded w-full text-left hover:bg-red-500 hover:text-white flex flex-row justify-between items-center"
                     >
                       Delete <FontAwesomeIcon icon={faTrash} />
                     </button>

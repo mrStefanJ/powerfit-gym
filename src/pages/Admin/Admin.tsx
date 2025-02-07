@@ -126,11 +126,11 @@ const Admin = () => {
         <div className="flex flex-col md:flex-row md:justify-around pt-20 pb-16 ml-2 mr-2">
           <div className="add_exercise md:w-64">
             <h2 className="text-center">Add New Exerises</h2>
-            <form onSubmit={handleSubmit} className="text-center">
+            <form onSubmit={handleSubmit} className="flex font-sans flex-col text-center">
               <select
                 value={selectedBodyPart}
                 onChange={handleSelectChange}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-8"
+                className="cursor-pointer shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
               >
                 <option>None</option>
                 <option value="abs">abs</option>
@@ -151,19 +151,19 @@ const Admin = () => {
               </select>
               <input
                 type="text"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-8"
+                className="shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700 my-5"
                 value={exerciseName}
                 onChange={handleChange}
                 placeholder="Exercise Name"
               />
               <button
                 type="submit"
-                className="text-white bg-gradient-to-r bg-blue-500 hover:bg-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 shadow-lg shadow-cyan-500/50 dark:shadow-lg dark:shadow-cyan-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 mt-8"
+                className="bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
               >
                 Add Exercise
               </button>
             </form>
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p className="text-center text-red-600 mt-5">{error}</p>}
           </div>
           <div className="exercise-list pt-20 md:pt-0 md:40">
             <h2 className="text-center">LIST OF EXERCISES</h2>

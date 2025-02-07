@@ -12,7 +12,6 @@ export type Category = {
 export type Workout = {
   id: number;
   status: ExercisStatus;
-  sets: number;
   title: string;
 };
 
@@ -20,3 +19,17 @@ export type Column = {
   id: ExercisStatus;
   title: string;
 };
+
+
+export type newTypeWorkout = {
+  id: string;
+  bodyPart: string;
+  createAt: string;
+  exercises: newTypeExercises;
+}
+
+export type newTypeExercises = {
+  id: string;
+  name: string;
+  status: ExercisStatus;
+}

@@ -1,4 +1,3 @@
-import { DragEndEvent } from "@dnd-kit/core";
 import {
   addDoc,
   collection,
@@ -15,22 +14,22 @@ import Header from "../../componenets/Header/Header";
 import Loading from "../../componenets/Loading/Loading";
 import UserTable from "../../componenets/Table/UserTable";
 import { db } from "../../configuration";
-import { listExercis } from "../../exercis/ExercisList";
-import DeleteUser from "../../modal/DeleteUser";
-import { User } from "../../types/User";
-import { Workout } from "../../types/Exercis";
-import ModalUser from "../../modal/ModalUser";
 import AddExercises from "../../modal/AddExercises";
+import DeleteUser from "../../modal/DeleteUser";
+import ModalUser from "../../modal/ModalUser";
+import { Category } from "../../types/Exercis";
+import { User } from "../../types/User";
+import { listExercis } from "../../exercis/ExercisList";
 
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [exercis, setExercis] = useState(listExercis);
+  const [exercis, setExercis] = useState(listExercis || []);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalExercises, setOpenModalExercises] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
@@ -110,10 +109,6 @@ const Users = () => {
     setOpenModalDelete(!openModalDelete);
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value);
-  };
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -146,7 +141,7 @@ const Users = () => {
         gender: userData.gender,
         group: userData.group,
       });
-      console.log("Document written with ID: ", docRef.id);
+
       const newUser = { ...userData, id: docRef.id };
       setUsers((prevUsers) => [...prevUsers, newUser]);
       setOpenModal(false);
@@ -209,42 +204,9 @@ const Users = () => {
     navigate(`/user/${user.id}`);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    const draggedItemId = active.id as string;
-    const targetStatus = over.id as Workout["status"];
-
-    setExercis((prevExercis) =>
-      prevExercis.map((category) => {
-        const updatedWorkout = category.exercises.workout.map((exercise) => {
-          if (exercise.id === parseInt(draggedItemId)) {
-            return { ...exercise, status: targetStatus };
-          }
-          return exercise;
-        });
-
-        return {
-          ...category,
-          exercises: {
-            ...category.exercises,
-            workout: updatedWorkout,
-          },
-        };
-      })
-    );
-  };
-
   const handleSubmitExercises = async () => {
     if (!selectedUser) {
       setMessage("No user selected for adding exercises.");
-      return;
-    }
-
-    if (!selectedCategory) {
-      setMessage("No exercise category selected.");
       return;
     }
 
@@ -262,10 +224,7 @@ const Users = () => {
         ),
       }));
 
-    if (exerciseToSave.length === 0 || !exerciseToSave[0].workout.length) {
-      setMessage("No exercises to save in the selected category.");
-      return;
-    }
+      console.log(exerciseToSave)
 
     try {
       // Reference to the user's document
@@ -286,19 +245,14 @@ const Users = () => {
 
       // Update the workouts to add only unique ones
       const updatedWorkouts = exerciseToSave[0].workout.filter(
-        (newExercise) =>
-          !currentExercises.some((existingExercise: any) =>
-            existingExercise.workout.some(
-              (workout: any) => workout.id === newExercise.id
-            )
-          )
+        (newEx) => !currentExercises.flatMap((ex: Category) => ex.exercises.workout).some((ex: any) => ex.id === newEx.id)
       );
 
       // If no new exercises, exit early
-      if (updatedWorkouts.length === 0) {
-        setMessage("No new exercises to add.");
-        return;
-      }
+      // if (updatedWorkouts.length === 0) {
+      //   setMessage("No new exercises to add.");
+      //   return;
+      // }
 
       // Create the updated array with the new exercises
       const updatedExercises = [
@@ -311,7 +265,7 @@ const Users = () => {
       ];
 
       // Update Firestore with the new exercises
-      await updateDoc(userRef, { exercise: updatedExercises });
+      await updateDoc(userRef, { exercises: updatedExercises });
 
       setMessage("Exercises submitted successfully!");
       setOpenModalExercises(false);
@@ -341,7 +295,7 @@ const Users = () => {
       <div className="flex flex-row justify-between items-center mx-2.5 pt-3.5">
         <p>List of Users</p>
         <button
-          className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-full"
+          className="bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
           onClick={toggleModalAddUser}
         >
           Add
@@ -386,14 +340,14 @@ const Users = () => {
 
       {openModalExercises && (
         <AddExercises
+          selectedUser={selectedUser}
           exercis={exercis}
           setExercis={setExercis}
-          handleDragEnd={handleDragEnd}
           message={message}
           toggleModalExercis={toggleModalAddExercis}
           saveExercises={handleSubmitExercises}
           selectedCategory={selectedCategory}
-          handleCategoryChange={handleCategoryChange}
+          setSelectedCategory={setSelectedCategory}
         />
       )}
       {openModalDelete && selectedUser && (

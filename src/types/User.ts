@@ -16,6 +16,6 @@ export type User = {
 export type UserExercise = {
   id: number;
   title: string;
-  date: string;
+  date?: string;
   workout: Workout[];
 }

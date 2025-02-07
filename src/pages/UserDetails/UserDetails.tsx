@@ -1,10 +1,9 @@
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-
 import { db } from "../../configuration";
-import { doc, getDoc } from "firebase/firestore";
-import { UserExercise, User } from "../../types/User";
 import { Workout } from "../../types/Exercis";
+import { User, UserExercise } from "../../types/User";
 
 const UserDetails = () => {
   const { id } = useParams();
@@ -108,7 +107,7 @@ const UserDetails = () => {
                 e.workout.map((w: Workout) => (
                   <tr key={w.id}>
                     <td className="border p-2">{w.title}</td>
-                    <td className="border p-2">{w.sets}</td>
+                    <td className="border p-2">10</td>
                     <td className="border p-2">{w.status}</td>
                   </tr>
                 ))

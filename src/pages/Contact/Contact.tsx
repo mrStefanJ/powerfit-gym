@@ -53,7 +53,7 @@ const Contact = () => {
             placeholder="Your Name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             required
           />
           <input
@@ -62,7 +62,7 @@ const Contact = () => {
             placeholder="Your Email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full shadow-lg shadow-yellow-700 rounded-full min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             required
           />
           <textarea
@@ -70,12 +70,12 @@ const Contact = () => {
             placeholder="Your Message"
             value={formData.message}
             onChange={handleChange}
-            className="w-full p-2 border rounded h-32"
+            className="w-full h-32 shadow-lg shadow-yellow-700 rounded-md min-w-[80px] px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             required
           ></textarea>
           <button
             type="submit"
-            className="text-white bg-gradient-to-r bg-blue-500 hover:bg-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 shadow-lg shadow-cyan-500/50 dark:shadow-lg dark:shadow-cyan-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+            className="bg-yellow-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-yellow-800 transition"
           >
             Send Message
           </button>
