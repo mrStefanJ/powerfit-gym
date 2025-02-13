@@ -1,7 +1,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { db } from "../../configuration";
+import { db } from "../../firebase/configuration";
 import { Workout } from "../../types/Exercis";
 import { User, UserExercise } from "../../types/User";
 

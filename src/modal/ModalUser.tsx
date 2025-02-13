@@ -1,17 +1,18 @@
-import { useState } from "react";
-import { User } from "../types/User";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import Loading from "../componenets/Loading/Loading";
+import useImageUpload from "../customHooks/useImageUpload";
+import { User } from "../types/User";
 
 interface CreateUserProps {
   title: string;
   userData: User;
+  errorImage: string;
   toggleModalUser: () => void;
   handleInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
-  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   loading: boolean;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
@@ -19,13 +20,14 @@ interface CreateUserProps {
 const ModalUser = ({
   title,
   userData,
+  errorImage,
   toggleModalUser,
   handleInputChange,
-  handleImageChange,
   loading,
   handleSubmit,
 }: CreateUserProps) => {
   const [showPassword, setShowPaassword] = useState(false);
+  const { image, handleImageChange } = useImageUpload();
 
   const togglePasswordVisibility = () => {
     setShowPaassword((prev) => !prev);
@@ -102,14 +104,29 @@ const ModalUser = ({
               required
             />
           </div>
-          <div className="mb-2">
-            <label>Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border p-2 rounded"
+          <div className="mb-2 mt-6">
+          <input
+            type="file"
+            accept="image/*"
+            id="file-upload"
+            className="hidden"
+            onChange={handleImageChange}
+            required
+          />
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
+          >
+            Upload Image
+          </label>
+          {image && (
+            <img
+              src={image}
+              alt="Uploaded Preview"
+              className="mt-2 w-20 h-20 object-cover rounded-full"
             />
+          )}
+          <p>{errorImage}</p>
           </div>
           <div className="mb-2">
             <label>Gender</label>
@@ -147,13 +164,13 @@ const ModalUser = ({
             <button
               type="button"
               onClick={toggleModalUser}
-              className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+              className="bg-red-500 text-white px-4 py-2 mr-2 rounded shadow-md hover:bg-red-800 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-500 text-white px-4 py-2 rounded"
+              className="bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
             >
               {loading ? <Loading color="fill-white" /> : "Save"}
             </button>

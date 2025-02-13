@@ -8,7 +8,7 @@ import {
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Doughnut } from "react-chartjs-2";
-import { db } from "../../configuration";
+import { db } from "../../firebase/configuration";
 import { User } from "../../types/User";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPerson, faPersonDress } from "@fortawesome/free-solid-svg-icons";

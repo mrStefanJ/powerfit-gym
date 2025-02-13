@@ -3,7 +3,7 @@ import { useState } from "react";
 import Column from "../componenets/Column/Column";
 import { Category, Column as ColumnType, Workout } from "../types/Exercis";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../configuration";
+import { db } from "../firebase/configuration";
 
 interface AddExerciesProps {
   exercis: Category[];
