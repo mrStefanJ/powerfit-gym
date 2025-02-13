@@ -1,69 +1,88 @@
 import { createContext, useState, useEffect } from "react";
 import { User } from "./types/User";
+import { auth } from "./firebase/configuration";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
 const AuthContext = createContext<{
   user: User | null;
-  register: (newUser: User) => { success: boolean; message: string };
-  login: ({ email, password }: { email: string; password: string }) => {
-    success: boolean;
-    message: string;
-  };
+  register: (newUser: User) => Promise<{ success: boolean; message: string }>;
+  login: ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => Promise<{ success: boolean; message: string }>;
   logOut: () => void;
 }>({
   user: null,
-  register: () => ({ success: false, message: "" }),
-  login: () => ({ success: false, message: "" }),
+  register: async () => ({ success: false, message: "" }),
+  login: async () => ({ success: false, message: "" }),
   logOut: () => {},
 });
 
 const AuthProvider = ({ children }: { children: any }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Check for logged-in user in localStorage on initial load
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const unsubscribe = auth.onAuthStateChanged((currentUser: any) => {
+      if (currentUser) {
+        setUser({
+          id: currentUser.uid,
+          firstName: "",
+          lastName: "",
+          email: currentUser.email || "",
+          password: "",
+          birthDate: "",
+          gender: "",
+          image: "",
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
+
   // Register a new user
-  const register = (newUser: any) => {
-    const registeredUsers = JSON.parse(
-      localStorage.getItem("gymRegisteredUsers") || "[]"
-    );
-    const userExists = registeredUsers.some(
-      (user: any) => user.email === newUser.email
-    );
-
-    if (userExists) {
-      return { success: false, message: "User already exists" };
+  const register = async (newUser: any) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        newUser.email,
+        newUser.password
+      );
+      setUser({ ...newUser, id: userCredential.user.uid });
+      return { success: true, message: "User registered successfully" };
+    } catch (error: any) {
+      return { success: false, message: error.message };
     }
-
-    registeredUsers.push(newUser);
-    localStorage.setItem("gymRegisteredUsers", JSON.stringify(registeredUsers));
-    return { success: true, message: "User registered successfully" };
   };
   // Login user
-  const login = ({ email, password }: { email: string; password: string }) => {
-    const registeredUsers = JSON.parse(
-      localStorage.getItem("gymRegisteredUsers") || "[]"
-    );
-    const foundUser = registeredUsers.find(
-      (user: any) => user.email === email && user.password === password
-    );
-
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem("currentUser", JSON.stringify(foundUser));
+  const login = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       return { success: true, message: "Login successful" };
+    } catch (error: any) {
+      return { success: false, message: error.message };
     }
-
-    return { success: false, message: "Invalid email or password" };
   };
   // Logout
   const logOut = () => {
+    signOut(auth);
     setUser(null);
-    localStorage.removeItem("currentUser");
   };
 
   return (

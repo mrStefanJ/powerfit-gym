@@ -31,12 +31,12 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const result = login(formData);
+    const result = await login(formData);
 
     if (result.success) {
-      navigate("/home"); // Navigate to home page on successful login
+      navigate("/home");
     } else {
       setMessage(result.message);
     }

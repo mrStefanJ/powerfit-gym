@@ -1,12 +1,15 @@
-import { ChangeEvent, FormEvent, useContext, useState, useId } from "react";
-import { AuthContext } from "../AuthProvider";
-import { Link } from "react-router";
-import { User } from "../types/User";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChangeEvent, FormEvent, useContext, useId, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { AuthContext } from "../AuthProvider";
+import useImageUplod from "../customHooks/useImageUpload";
+import { User } from "../types/User";
+import Loading from "../componenets/Loading/Loading";
 
 const Register = () => {
   const { register } = useContext(AuthContext);
+  const { image, handleImageChange } = useImageUplod();
   const [formData, setFormData] = useState<User>({
     id: useId(),
     firstName: "",
@@ -19,6 +22,8 @@ const Register = () => {
   });
   const [message, setMessage] = useState("");
   const [showPassword, setShowPaassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPaassword((prev) => !prev);
@@ -31,23 +36,30 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setFormData({ ...formData, image: reader.result.toString() });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const result = register(formData);
-    setMessage(result.message);
+    setMessage("");
+    setLoading(true);
+
+    const uploadFormData = { ...formData, image: image || "" };
+    const result = await register(uploadFormData);
+
+    if (result.success) {
+      const storedUsers = JSON.parse(
+        localStorage.getItem("registeredUsers") || "[]"
+      );
+      const updatedUsers = [...storedUsers, uploadFormData];
+      localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
+
+      setMessage(result.message);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 4000);
+    } else {
+      setMessage(result.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,6 +122,7 @@ const Register = () => {
             placeholder="Enter your birthday"
             className="cursor-pointer shadow-lg shadow-yellow-700 rounded min-w-[80px] max-w-full px-3 py-2 focus:border-yellow-700 focus:outline-yellow-700"
             value={formData.birthDate}
+            max={new Date().toISOString().split("T")[0]}
             onChange={handleChange}
             required
           />
@@ -150,6 +163,13 @@ const Register = () => {
           >
             Upload Image
           </label>
+          {image && (
+            <img
+              src={image}
+              alt="Uploaded Preview"
+              className="mt-2 w-20 h-20 object-cover rounded-full"
+            />
+          )}
         </div>
         <p className="text-white">
           Already have an account?{" "}
@@ -161,11 +181,19 @@ const Register = () => {
           type="submit"
           className="bg-yellow-700 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-800 transition"
         >
-          Register
+          {loading ? (
+            <Loading color="fill-white" />) : "Register" }
         </button>
-        {message && <p className="bg-red-700">{message}</p>}
+        {message && (
+          <p
+            className={`mt-2 px-4 py-2 rounded ${
+              message.includes("success") ? "bg-green-600" : "bg-red-600"
+            } text-white`}
+          >
+            {message}
+          </p>
+        )}
       </form>
-      <div className="table"></div>
     </div>
   );
 };

@@ -1,15 +1,34 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { NavLink } from "react-router";
 import { AuthContext } from "../../AuthProvider";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { User } from "../../types/User";
 
 const Header = () => {
   const { user, logOut } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userData, setUserData] = useState(user);
+
+  useEffect(() => {
+    if (user?.email) {
+      const registeredUsers = JSON.parse(
+        localStorage.getItem("registeredUsers") || "[]"
+      );
+      const matchedUser = registeredUsers.find(
+        (u: User) => u.email === user.email
+      );
+
+      if (matchedUser) {
+        setUserData((prevUser) => ({ ...prevUser, ...matchedUser }));
+      }
+    }
+  }, [user]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  console.log(userData);
 
   return (
     <header className="relative flex flex-row items-center justify-between px-4 py-4 border-b-4 bg-[#09112b] border-yellow-700">
@@ -18,7 +37,15 @@ const Header = () => {
         className="text-2xl md:hidden transition-transform duration-300"
         aria-label="Toggle menu"
       >
-        {isMenuOpen ? <span className="text-white"><FontAwesomeIcon icon={faXmark} /></span> : <span className="text-white"><FontAwesomeIcon icon={faBars} /></span>}
+        {isMenuOpen ? (
+          <span className="text-white">
+            <FontAwesomeIcon icon={faXmark} />
+          </span>
+        ) : (
+          <span className="text-white">
+            <FontAwesomeIcon icon={faBars} />
+          </span>
+        )}
       </button>
 
       <nav
@@ -41,10 +68,16 @@ const Header = () => {
         >
           Training
         </NavLink>
-        <NavLink to="/users" className="block py-4 px-6 border-b text-lg text-yellow-700 hover:bg-yellow-700 hover:text-white md:text-white md:border-0 md:hover:text-yellow-700 md:hover:bg-transparent">
+        <NavLink
+          to="/users"
+          className="block py-4 px-6 border-b text-lg text-yellow-700 hover:bg-yellow-700 hover:text-white md:text-white md:border-0 md:hover:text-yellow-700 md:hover:bg-transparent"
+        >
           Users
         </NavLink>
-        <NavLink to="/contact" className="block py-4 px-6 border-b text-lg text-yellow-700 hover:bg-yellow-700 hover:text-white md:text-white md:border-0 md:hover:text-yellow-700 md:hover:bg-transparent">
+        <NavLink
+          to="/contact"
+          className="block py-4 px-6 border-b text-lg text-yellow-700 hover:bg-yellow-700 hover:text-white md:text-white md:border-0 md:hover:text-yellow-700 md:hover:bg-transparent"
+        >
           Contact Us
         </NavLink>
       </nav>
@@ -56,10 +89,9 @@ const Header = () => {
             id="menu-button"
           >
             <img
-              src={user?.image}
-              alt="User"
+              src={userData?.image ?? ""}
+              alt={userData?.firstName + " " + userData?.lastName}
               className="w-9 h-9 mr-2 border object-cover rounded-lg hover:bg-yellow-500 hover:shadow-lg hover:shadow-yellow-500"
-
             />
           </div>
         </MenuButton>
